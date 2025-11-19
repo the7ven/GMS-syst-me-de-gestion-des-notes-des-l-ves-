@@ -1,5 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&family=Momo+Trust+Display&display=swap');
-
+@import url("https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&family=Momo+Trust+Display&display=swap");
 
 * {
   margin: 0;
@@ -8,14 +7,12 @@
 }
 
 body {
- 
   font-family: "Lato", sans-serif;
   min-height: 100vh;
   padding: 20px;
 }
 
 .container {
-  
   margin: 0 auto;
   background: white;
   border-radius: 20px;
@@ -211,11 +208,10 @@ select:focus {
 
 .subjects-section {
   margin-top: 20px;
-  
 }
 
-.subject-name{
-    font-weight: 500;
+.subject-name {
+  font-weight: 500;
 }
 
 .subject-item {
@@ -245,46 +241,43 @@ select:focus {
   }
 }
 
-
 /* --- Footer Styling --- */
 
 .app-footer {
-    /* Fixe le footer au bas de la page ou du contenu */
-    width: 100%;
-    padding: 15px 20px;
-    background-color: #333; /* Couleur de fond sombre pour contraste */
-    color: #f4f4f4; /* Texte clair */
-    text-align: center;
-    font-size: 0.85em;
-    box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
-    margin-top: 40px; /* Ajoute un espace au-dessus du footer */
+ 
+  width: 100%;
+  padding: 15px 20px;
+  background-color: #333;
+  color: #f4f4f4;
+  text-align: center;
+  font-size: 0.85em;
+  box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+  margin-top: 40px;
 }
 
 .footer-content p {
-    margin: 5px 0;
-    line-height: 1.4;
+  margin: 5px 0;
+  line-height: 1.4;
 }
 
-/* Rendre le footer mieux formaté sur les grands écrans (tablette et desktop) */
 @media (min-width: 768px) {
-    .app-footer {
-        padding: 20px 40px;
-    }
+  .app-footer {
+    padding: 20px 40px;
+  }
 
-    .footer-content {
-        display: flex;
-        justify-content: space-between; /* Aligne le contenu à gauche et à droite */
-        max-width: 1000px; /* Limite la largeur du contenu central */
-        margin: 0 auto;
-    }
+  .footer-content {
+    display: flex;
+    justify-content: space-between;
+    max-width: 1000px;
+    margin: 0 auto;
+  }
 
-    .footer-content p {
-        margin: 0;
-        text-align: left;
-    }
+  .footer-content p {
+    margin: 0;
+    text-align: left;
+  }
 
-    /* Le deuxième paragraphe (Développé...) sera aligné à droite sur grand écran */
-    .footer-content p:last-child {
-        text-align: right;
-    }
+  .footer-content p:last-child {
+    text-align: right;
+  }
 }

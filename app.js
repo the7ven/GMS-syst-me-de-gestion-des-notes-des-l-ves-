@@ -1,9 +1,12 @@
  // Configuration IndexedDB
+
         let db;
         const DB_NAME = 'GradesDB';
         const DB_VERSION = 1;
 
         // Initialisation de la base de données
+
+
         function initDB() {
             const request = indexedDB.open(DB_NAME, DB_VERSION);
 
@@ -32,6 +35,7 @@
         }
 
         // Gestion des onglets
+
         function switchTab(event,tabName) {
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
@@ -40,7 +44,21 @@
             document.getElementById(tabName).classList.add('active');
         }
 
-        // Ajouter un champ de matière
+       
+        
+/**
+ * @function addSubjectField
+ * @description Ajoute dynamiquement une nouvelle ligne de saisie pour une matière
+ * (Nom de la matière et Coefficient) dans la liste HTML 'subjectsList'.
+ * Elle permet à l'utilisateur d'ajouter des matières personnalisées au formulaire
+ * d'enregistrement d'un élève, incrémentant au passage un compteur global 'subjectCount'.
+ * @returns {void}
+ */
+
+
+
+
+
         let subjectCount = 0;
         function addSubjectField() {
             const container = document.getElementById('subjectsList');
@@ -55,7 +73,20 @@
             subjectCount++;
         }
 
-        // Initialiser avec quelques matières par défaut
+       
+
+/**
+ * @function initDefaultSubjects
+ * @description Initialise la section de saisie des matières (pour un nouvel élève)
+ * en ajoutant une liste de matières et de coefficients prédéfinis (par défaut)
+ * à l'élément HTML avec l'ID 'subjectsList'.
+ * Chaque matière est affichée avec des champs de saisie pour le nom et le coefficient,
+ * et un bouton pour la supprimer de la liste.
+ * @returns {void}
+ */
+
+
+
         function initDefaultSubjects() {
             const defaults = [
                 {name: 'Mathématiques', coef: 5},
@@ -79,8 +110,22 @@
                 container.appendChild(div);
             });
         }
+ 
 
-        // Sauvegarder un élève
+/**
+ * @function saveStudent
+ * @description Récupère le nom de l'élève et la liste de ses matières avec coefficients depuis le formulaire HTML.
+ * Après validation (nom et au moins une matière requis), elle crée un nouvel objet élève
+ * et l'ajoute à l'Object Store 'students' dans IndexedDB.
+ * En cas de succès, elle réinitialise le formulaire et met à jour les listes d'élèves (loadStudentsList)
+ * et les menus déroulants de sélection (updateStudentSelects).
+ * @returns {void}
+ */
+
+
+
+
+
         function saveStudent() {
             const name = document.getElementById('studentName').value.trim();
             if (!name) {
@@ -128,7 +173,20 @@
             };
         }
 
-        // Charger la liste des élèves
+       
+
+
+
+/**
+ * @function loadStudentsList
+ * @description Récupère tous les élèves stockés dans l'Object Store 'students' de la base de données IndexedDB.
+ * Elle vide ensuite la liste HTML avec l'ID 'studentsList' et la remplit
+ * avec les détails de chaque élève (Nom, nombre de matières) et un bouton de suppression.
+ * @returns {void}
+ */
+
+
+
         function loadStudentsList() {
             const transaction = db.transaction(['students'], 'readonly');
             const store = transaction.objectStore('students');
@@ -156,7 +214,18 @@
             };
         }
 
-        // Supprimer un élève
+       
+
+/**
+ * @function deleteStudent
+ * @description Supprime un élève et toutes ses notes associées de la base de données IndexedDB.
+ * Une confirmation de l'utilisateur est requise avant l'exécution.
+ * Après suppression, met à jour la liste des élèves et les menus déroulants de sélection.
+ * @param {number} id - L'identifiant unique (ID) de l'élève à supprimer.
+ * @returns {void}
+ */
+
+
         function deleteStudent(id) {
             if (!confirm('Êtes-vous sûr de vouloir supprimer cet élève?')) return;
 
@@ -182,7 +251,18 @@
             };
         }
 
-        // Mettre à jour les selects d'élèves
+      
+
+
+/**
+ * @function updateStudentSelects 
+ * @description Récupère tous les élèves de la base de données IndexedDB.
+ * Met à jour les éléments <select> pour afficher ces élèves.
+ * @param {void}
+ * @returns {void}
+ */
+
+
         function updateStudentSelects() {
             const transaction = db.transaction(['students'], 'readonly');
             const store = transaction.objectStore('students');
@@ -209,7 +289,24 @@
             };
         }
 
-        // Charger les notes d'un élève
+        
+
+/**
+ * @function loadStudentGrades
+ * @description Charge les notes d'un élève sélectionné.
+ * 1. Récupère l'ID de l'élève depuis le menu déroulant 'selectStudent'.
+ * 2. Si un ID est trouvé, elle récupère les détails de cet élève (notamment ses matières).
+ * 3. Elle génère dynamiquement dans 'gradesContainer' une interface de saisie 
+ * (cards pour chaque séquence et champs pour chaque matière/coefficient).
+ * 4. Elle tente ensuite de charger et de préremplir ces champs avec les notes existantes
+ * stockées dans l'Object Store 'grades' pour cet élève.
+ * 5. Ajoute un bouton 'Enregistrer' qui appelle la fonction 'saveGrades'.
+ * @returns {void}
+ */
+
+
+
+
         function loadStudentGrades() {
             const studentId = parseInt(document.getElementById('selectStudent').value);
             if (!studentId) {
@@ -274,7 +371,20 @@
             };
         }
 
-        // Sauvegarder les notes
+       
+
+
+/**
+ * @function saveGrades
+ * @description Récupère toutes les notes saisies dans les champs du formulaire pour l'élève sélectionné.
+ * Elle construit un tableau de données structuré (par séquence et par matière) et l'enregistre
+ * dans l'Object Store 'grades' d'IndexedDB.
+ * Met à jour l'enregistrement existant (PUT) ou en crée un nouveau (ADD) s'il n'existe pas.
+ * @returns {void}
+ */
+
+
+
         function saveGrades() {
             const studentId = parseInt(document.getElementById('selectStudent').value);
             const transaction = db.transaction(['students', 'grades'], 'readwrite');
@@ -316,7 +426,21 @@
             };
         }
 
-        // Calculer les résultats
+
+
+       
+
+/**
+ * @function calculateResults
+ * @description Fonction principale pour l'affichage des résultats et moyennes d'un élève.
+ * 1. Récupère l'ID de l'élève sélectionné via 'selectStudentResults'.
+ * 2. Cherche les détails de l'élève ('students') et ses notes ('grades') dans IndexedDB.
+ * 3. Si des notes sont trouvées, elle délègue le calcul des moyennes pondérées à 'computeAverages()'.
+ * 4. Elle délègue ensuite l'affichage structuré des résultats à 'displayResults()'.
+ * @returns {void}
+ */
+
+
         function calculateResults() {
             const studentId = parseInt(document.getElementById('selectStudentResults').value);
             if (!studentId) {
@@ -385,11 +509,13 @@
         }
 
         // Afficher les résultats
+
         function displayResults(results) {
             const container = document.getElementById('resultsContainer');
             container.innerHTML = '';
 
             // Séquences
+
             const seqCard = document.createElement('div');
             seqCard.className = 'card';
             seqCard.innerHTML = '<h3>Moyennes par séquence</h3>';
@@ -405,6 +531,7 @@
             container.appendChild(seqCard);
 
             // Trimestres
+
             const trimCard = document.createElement('div');
             trimCard.className = 'card';
             trimCard.innerHTML = '<h3>Moyennes par trimestre</h3>';
@@ -433,6 +560,7 @@
         }
 
         // Service Worker
+
         if ('serviceWorker' in navigator) {
             const swCode = `
                 self.addEventListener('install', (event) => {
@@ -468,11 +596,4 @@
             initDefaultSubjects();
         });
 
-        // Détection en ligne/hors ligne
-        window.addEventListener('online', () => {
-            document.getElementById('status').textContent = '✓ En ligne';
-        });
-
-        window.addEventListener('offline', () => {
-            document.getElementById('status').textContent = '⚠ Hors ligne';
-        });
+       
