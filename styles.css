@@ -10,11 +10,14 @@ body {
   font-family: "Lato", sans-serif;
   min-height: 100vh;
   padding: 20px;
+ display: flex;
+ flex-direction: column;
+  
 }
 
 .container {
   margin: 0 auto;
-
+  width: 1200px;
   background: white;
   border-radius: 20px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
