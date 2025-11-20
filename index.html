@@ -3,11 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles.css"> 
     <title>GMS</title>
 </head>
 <body>
-    <body>
     <div class="container">
         <div class="header">
             <h1>Gestion des Moyennes Scolaires</h1>
@@ -15,58 +14,62 @@
         </div>
 
         <div class="tabs">
-            <button class="tab active" onclick="switchTab(event, 'students')">Élèves</button>
+            <button class="tab active" onclick="switchTab(event, 'dashboard')">Tableau de Bord</button>
+            <button class="tab" onclick="switchTab(event, 'classes_management')">Classes & Élèves</button>
             <button class="tab" onclick="switchTab(event,'grades')">Notes</button>
             <button class="tab" onclick="switchTab(event,'results')">Résultats</button>
         </div>
 
         <div class="content">
-            <!-- Onglet Élèves -->
-            <div id="students" class="tab-content active">
-                <h2>Ajouter un élève</h2>
-                <div class="form-group">
-                    <label>Nom de l'élève</label>
-                    <input type="text" id="studentName" placeholder="Entrez le nom de l'élève">
-                </div>
-
-                <div class="subjects-section">
-                    <h3>Matières et coefficients</h3>
-                    <div id="subjectsList"></div>
-                    <button class="btn btn-add" onclick="addSubjectField()">+ Ajouter une matière</button>
-                </div>
-
-                <button class="btn" onclick="saveStudent()" style="margin-top: 20px;">Enregistrer l'élève</button>
-
-                <div style="margin-top: 40px;">
-                    <h2>Liste des élèves</h2>
-                    <ul class="student-list" id="studentsList"></ul>
+            
+            <div id="dashboard" class="tab-content active">
+                <h2>Tableau de Bord Scolaire </h2>
+                <div id="dashboardContent">
+                    <p>Chargement des données en cours...</p>
                 </div>
             </div>
 
-            <!-- Onglet Notes -->
+            <div id="classes_management" class="tab-content">
+                
+                <h2>1. Liste des Classes (Cliquez pour gérer les élèves)</h2>
+                <div id="classesAndStudentsList"> 
+                     </div>
+
+               <h2>2. Outils de Gestion</h2>
+               <div class="card">
+                    <h3>Classes</h3>
+                    <button class="btn btn-secondary" onclick="openClassModal(null, 'Nouvelle', 'creation')">Ajouter une Nouvelle Classe</button>
+                    <button class="btn btn-primary" onclick="createDefaultClassesIfEmpty()">Ajouter Classes Cameroun par Défaut</button>
+               </div>
+                
+                <div class="card">
+                    <h3>Import/Export des Données</h3>
+                    <button class="btn btn-secondary" onclick="exportData()">Exporter les Données (JSON)</button>
+                    
+                    <div class="form-group" style="margin-top: 15px;">
+                        <label>Importer un fichier de sauvegarde (JSON)</label>
+                        <input type="file" id="importFile" accept=".json">
+                        <button class="btn btn-danger" onclick="handleImport()" style="margin-top: 5px;">Importer et Écraser</button>
+                    </div>
+                </div>
+
+            </div>
+            
             <div id="grades" class="tab-content">
-                <h2>Saisir les notes</h2>
-                <div class="form-group">
-                    <label>Sélectionner un élève</label>
-                    <select id="selectStudent" onchange="loadStudentGrades()">
-                        <option value="">-- Choisir un élève --</option>
-                    </select>
+                <h2>Saisie des Notes par Classe </h2>
+                <p>Sélectionnez une classe, puis un élève pour entrer ses notes séquentielles (sur 20).</p>
+                <div id="gradesClassesContainer"> 
+                    <p style="text-align: center;">Chargement des classes...</p>
                 </div>
-
-                <div id="gradesContainer"></div>
             </div>
 
-            <!-- Onglet Résultats -->
             <div id="results" class="tab-content">
-                <h2>Résultats</h2>
-                <div class="form-group">
-                    <label>Sélectionner un élève</label>
-                    <select id="selectStudentResults" onchange="calculateResults()">
-                        <option value="">-- Choisir un élève --</option>
-                    </select>
+                <h2>Consultation des Résultats Individuels 🎓</h2>
+                <p>Cliquez sur une classe pour consulter les bulletins de ses élèves.</p>
+                <div id="resultsClassesContainer"> 
+                    <p style="text-align: center;">Chargement des classes...</p>
                 </div>
-
-                <div id="resultsContainer"></div>
+                <div id="resultsContainer" style="display: none;"></div> 
             </div>
         </div>
     </div>
@@ -74,9 +77,29 @@
     <footer class="app-footer">
         <div class="footer-content">
             <p>&copy; 2025 GMS - Gestion des Moyennes Scolaires</p>
-            <p>Développé pour l'éducation par Corneille NKWEL</p>
+            <div id="status"></div>
         </div>
     </footer>
+    
+    <div id="classModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeClassModal()">&times;</span>
+            <h2 id="modalTitle"></h2>
+            <div id="modalBody">
+                </div>
+        </div>
+    </div>
+    <div id="addStudentModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeAddStudentModal()">&times;</span>
+            <h2>Ajouter un élève</h2>
+            <div class="form-group">
+                <label>Nom de l'élève</label>
+                <input type="text" id="newStudentName" placeholder="Entrez le nom de l'élève">
+            </div>
+            <button class="btn" onclick="saveNewStudentFromModal()">Ajouter l'élève</button>
+        </div>
+    </div>
 
     <script src="app.js"></script>
 </body>
