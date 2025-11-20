@@ -840,7 +840,7 @@ async function viewStudentDetailsModal(studentId, studentName, classId) {
     const modalBody = document.getElementById('modalBody');
     const mode = modalTitle.dataset.mode || 'dashboard';
 
-    modalTitle.innerHTML = `Détails des notes de : **${studentName}**`;
+    modalTitle.innerHTML = `Détails des notes de : ${studentName}`;
     modalBody.innerHTML = '<p class="loading-message" style="text-align:center;">Chargement des résultats...</p>';
 
     const transaction = db.transaction(['classes', 'grades'], 'readonly');
