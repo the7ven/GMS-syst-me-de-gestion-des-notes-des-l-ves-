@@ -927,7 +927,7 @@ async function viewStudentDetailsModal(studentId, studentName, classId) {
         `;
     });
     
-    // --- Ajout des boutons d'impression de bulletins (Déplacé ici) ---
+    // --- Ajout des boutons d'impression de bulletins
     if(gradesEntry) { // Seulement si des notes existent
         html += `
             <div class="card" style="margin-top: 30px;">
