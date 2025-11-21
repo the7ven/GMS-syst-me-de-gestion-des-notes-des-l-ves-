@@ -1,3 +1,89 @@
+// --- NOUVEAU: Système de Notification (Toast) ---
+function showNotification(message, type = 'info') {
+    const container = document.getElementById('notification-container');
+    if (!container) return;
+
+    const toast = document.createElement('div');
+    toast.classList.add('toast', type);
+    toast.textContent = message;
+
+    container.appendChild(toast);
+
+    // Afficher le toast
+    setTimeout(() => {
+        toast.classList.add('show');
+    }, 10);
+
+    // Cacher et supprimer le toast après 4 secondes
+    setTimeout(() => {
+        toast.classList.remove('show');
+        // Attendre la fin de la transition avant la suppression
+        setTimeout(() => {
+            if (container.contains(toast)) {
+                container.removeChild(toast);
+            }
+        }, 500); 
+    }, 4000);
+}
+
+
+
+/**
+ * @function showCustomConfirm
+ * @description Affiche une boîte de dialogue de confirmation asynchrone (modale).
+ * @param {string} message - Le message à afficher.
+ * @returns {Promise<boolean>} Résoud à true si confirmé, false sinon.
+ */
+function showCustomConfirm(message) {
+    return new Promise(resolve => {
+        const modal = document.getElementById('customConfirmModal');
+        const messageEl = document.getElementById('confirmMessage');
+        const okBtn = document.getElementById('confirmOkBtn');
+        const cancelBtn = document.getElementById('confirmCancelBtn');
+
+        if (!modal || !messageEl || !okBtn || !cancelBtn) {
+            // Repli si les éléments ne sont pas trouvés (pour éviter de bloquer l'appli)
+            console.error("Custom confirmation modal elements not found. Falling back to native confirm.");
+            resolve(confirm(message));
+            return;
+        }
+
+        messageEl.textContent = message;
+        modal.style.display = 'block';
+
+        const handleOk = () => {
+            modal.style.display = 'none';
+            resolve(true);
+            removeListeners();
+        };
+
+        const handleCancel = () => {
+            modal.style.display = 'none';
+            resolve(false);
+            removeListeners();
+        };
+
+        // Ajout des écouteurs
+        okBtn.addEventListener('click', handleOk);
+        cancelBtn.addEventListener('click', handleCancel);
+
+        const removeListeners = () => {
+            okBtn.removeEventListener('click', handleOk);
+            cancelBtn.removeEventListener('click', handleCancel);
+        };
+        
+        // Fermeture si l'utilisateur clique en dehors de la modale
+        modal.onclick = (event) => {
+            if (event.target === modal) {
+                handleCancel();
+            }
+        };
+    });
+}
+
+
+
+
 // Configuration IndexedDB
 
 let db;
@@ -170,7 +256,7 @@ function createDefaultClassesIfEmpty() {
                 console.log('Classes par défaut créées. Rafraîchissement des vues.');
                 loadDashboard();
                 loadClassesAndStudentsDetails();
-                alert('Classes du secondaire général (6e à Tle C/D) créées automatiquement !');
+                showNotification('Classes du secondaire général (6e à Tle C/D) créées automatiquement !');
             };
             
             transaction.onerror = (event) => {
@@ -286,11 +372,11 @@ async function saveNewStudentFromModal() {
     const classId = parseInt(input.dataset.classId);
     
     if (!name) {
-        alert('Veuillez entrer un nom pour l\'élève');
+        showNotification('Veuillez entrer un nom pour l\'élève');
         return;
     }
     if (!classId) {
-        alert('Erreur: Classe cible non définie.');
+        showNotification('Erreur: Classe cible non définie.');
         return;
     }
 
@@ -306,7 +392,7 @@ async function saveNewStudentFromModal() {
 
     request.onsuccess = async () => {
         closeAddStudentModal();
-        alert(`Élève "${name}" ajouté à la classe ID ${classId}!`);
+        showNotification(`Élève "${name}" ajouté à la classe ID ${classId}!`);
         
         loadDashboard();
         await loadClassesAndStudentsDetails();
@@ -322,7 +408,7 @@ async function saveNewStudentFromModal() {
     };
 
     request.onerror = () => {
-        alert('Erreur lors de l\'enregistrement de l\'élève');
+        showNotification('Erreur lors de l\'enregistrement de l\'élève');
     };
 }
 
@@ -394,7 +480,7 @@ function deleteStudentAndRefreshModal(studentId, classId) {
     };
 
     studentTransaction.oncomplete = async () => {
-        alert('Élève supprimé.');
+        showNotification('Élève supprimé.');
         
         loadDashboard();
         await loadClassesAndStudentsDetails();
@@ -412,7 +498,7 @@ function deleteStudentAndRefreshModal(studentId, classId) {
     };
     
     studentTransaction.onerror = () => {
-        alert('Erreur lors de la suppression de l\'élève.');
+        showNotification('Erreur lors de la suppression de l\'élève.');
     };
 }
 
@@ -625,7 +711,7 @@ function generateReportHTML(reportType, period, studentName, className, classObj
  * @description Fonction unique et flexible pour calculer et imprimer les bulletins (séquentiel, trimestriel, annuel).
  */
 async function generateAndPrintReport(studentId, reportType, periodNumber) {
-    if (!studentId || !db) return alert("Sélectionnez un élève.");
+    if (!studentId || !db) return showNotification("Sélectionnez un élève.");
 
     const transaction = db.transaction(['students', 'classes', 'grades'], 'readonly');
     const studentsStore = transaction.objectStore('students');
@@ -633,27 +719,27 @@ async function generateAndPrintReport(studentId, reportType, periodNumber) {
     const gradesStore = transaction.objectStore('grades');
     
     let student = await new Promise(resolve => studentsStore.get(studentId).onsuccess = e => resolve(e.target.result));
-    if (!student) return alert("Élève non trouvé.");
+    if (!student) return showNotification("Élève non trouvé.");
     
     let studentClass = await new Promise(resolve => classesStore.get(student.classId).onsuccess = e => resolve(e.target.result));
-    if (!studentClass) return alert("Classe non trouvée.");
+    if (!studentClass) return showNotification("Classe non trouvée.");
     
     let gradesEntry = await new Promise(resolve => gradesStore.index('studentId').get(studentId).onsuccess = e => resolve(e.target.result));
     
-    if (!gradesEntry || !gradesEntry.data) return alert("Aucune note enregistrée pour cet élève.");
+    if (!gradesEntry || !gradesEntry.data) return showNotification("Aucune note enregistrée pour cet élève.");
     
     const gradesData = gradesEntry.data;
     const results = computeAverages(studentClass, gradesData);
     
     // Vérification de la période si elle est N/A
     if (reportType === 'sequence' && results.sequences[periodNumber - 1] === null) {
-        return alert(`Impossible de générer le bulletin: Aucune note pour la ${sequences[periodNumber - 1]}.`);
+        return showNotification(`Impossible de générer le bulletin: Aucune note pour la ${sequences[periodNumber - 1]}.`);
     }
     if (reportType === 'trimester' && results.trimesters[periodNumber - 1] === null) {
-        return alert(`Impossible de générer le bulletin: Les moyennes du Trimestre ${periodNumber} sont incomplètes.`);
+        return showNotification(`Impossible de générer le bulletin: Les moyennes du Trimestre ${periodNumber} sont incomplètes.`);
     }
     if (reportType === 'annual' && results.year === null) {
-        return alert(`Impossible de générer le bulletin: La moyenne annuelle est incomplète.`);
+        return showNotification(`Impossible de générer le bulletin: La moyenne annuelle est incomplète.`);
     }
 
 
@@ -671,7 +757,7 @@ async function generateAndPrintReport(studentId, reportType, periodNumber) {
     // Création de la fenêtre d'impression
     const printWindow = window.open('', '', 'height=600,width=800');
     if (!printWindow) {
-        alert("Veuillez autoriser les pop-ups pour imprimer le bulletin.");
+        showNotification("Veuillez autoriser les pop-ups pour imprimer le bulletin.");
         return;
     }
     printWindow.document.write('<html><head><title>Bulletin</title>');
@@ -1234,7 +1320,7 @@ function saveGradesFromModal() {
     const className = document.getElementById('modalTitle').textContent.split(': ')[1];
 
     if (isNaN(studentId) || isNaN(classId)) {
-        alert("Erreur: Impossible de déterminer l'élève ou la classe.");
+        showNotification("Erreur: Impossible de déterminer l'élève ou la classe.");
         return;
     }
     
@@ -1242,7 +1328,7 @@ function saveGradesFromModal() {
     const inputs = gradesContainer.querySelectorAll('input[type="number"]');
 
     if (inputs.length === 0) {
-        alert("Aucun champ de note trouvé.");
+        showNotification("Aucun champ de note trouvé.");
         return;
     }
 
@@ -1279,7 +1365,7 @@ function saveGradesFromModal() {
     });
 
     if (!allValid) {
-        alert("Veuillez corriger les notes invalides (doivent être entre 0 et 20).");
+        showNotification("Veuillez corriger les notes invalides (doivent être entre 0 et 20).");
         return;
     }
 
@@ -1302,7 +1388,7 @@ function saveGradesFromModal() {
     };
 
     transaction.oncomplete = async () => {
-        alert('Notes enregistrées avec succès!');
+        showNotification('Notes enregistrées avec succès!');
         
         // Recharger le tableau de bord et revenir à la liste des élèves
         loadDashboard(); 
@@ -1311,7 +1397,7 @@ function saveGradesFromModal() {
     
     transaction.onerror = (e) => {
         console.error("Erreur lors de l'enregistrement des notes:", e.target.error);
-        alert("Erreur lors de l'enregistrement des notes.");
+        showNotification("Erreur lors de l'enregistrement des notes.");
     };
 }
 
@@ -1382,7 +1468,7 @@ function saveNewClass() {
     const className = classNameInput.value.trim();
     
     if (!className) {
-        alert("Veuillez donner un nom à la nouvelle classe.");
+        showNotification("Veuillez donner un nom à la nouvelle classe.");
         classNameInput.focus();
         return;
     }
@@ -1391,7 +1477,7 @@ function saveNewClass() {
     const subjectRows = container.querySelectorAll('.subject-row');
     
     if (subjectRows.length === 0) {
-        alert("Veuillez ajouter au moins une matière.");
+        showNotification("Veuillez ajouter au moins une matière.");
         return;
     }
 
@@ -1419,7 +1505,7 @@ function saveNewClass() {
     });
 
     if (!isValid) {
-        alert("Veuillez corriger les champs Matière/Coefficient invalides (nom requis, coefficient >= 1).");
+        showNotification("Veuillez corriger les champs Matière/Coefficient invalides (nom requis, coefficient >= 1).");
         return;
     }
 
@@ -1436,7 +1522,7 @@ function saveNewClass() {
 
     request.onsuccess = () => {
         closeClassModal();
-        alert(`La classe "${className}" a été créée avec ${subjects.length} matière(s)!`);
+        showNotification(`La classe "${className}" a été créée avec ${subjects.length} matière(s)!`);
         
         // Rafraîchir l'interface
         loadDashboard();
@@ -1445,7 +1531,7 @@ function saveNewClass() {
 
     request.onerror = (event) => {
         console.error('Erreur lors de l\'enregistrement de la classe:', event.target.error);
-        alert('Erreur lors de l\'enregistrement de la classe.');
+        showNotification('Erreur lors de l\'enregistrement de la classe.');
     };
 }
 
@@ -1514,11 +1600,11 @@ async function exportData() {
         document.body.removeChild(a);
         URL.revokeObjectURL(url); 
 
-        alert('Exportation réussie! Le fichier ' + a.download + ' a été téléchargé.');
+        showNotification('Exportation réussie! Le fichier ' + a.download + ' a été téléchargé.');
 
     } catch (error) {
         console.error("Erreur lors de l'exportation:", error);
-        alert('Erreur lors de l\'exportation des données. Consultez la console.');
+        showNotification('Erreur lors de l\'exportation des données. Consultez la console.');
     }
 }
 
@@ -1527,28 +1613,40 @@ async function exportData() {
  * @function handleImport
  * @description Gère l'événement de clic sur le bouton d'importation.
  */
-function handleImport() {
+// La fonction doit être ASYNCHRONE pour utiliser 'await'
+async function handleImport() {
     const fileInput = document.getElementById('importFile');
     const file = fileInput.files[0];
 
     if (!file) {
-        alert('Veuillez sélectionner un fichier JSON à importer.');
+        // Assurez-vous que la fonction showNotification() est définie
+        showNotification('Veuillez sélectionner un fichier JSON à importer.');
         return;
     }
 
-    if (!confirm("ATTENTION: L'importation va écraser TOUTES les données existantes (classes, élèves, notes) par celles du fichier. Continuer ?")) {
+    //  Utilisation de la modale personnalisée au lieu de confirm() 
+    const isConfirmed = await showCustomConfirm(
+        "ATTENTION: L'importation va écraser TOUTES les données existantes (classes, élèves, notes) par celles du fichier. Continuer ?"
+    );
+    
+    if (!isConfirmed) {
+        // Annuler si l'utilisateur a cliqué sur 'Annuler'
+        // Réinitialiser le champ de fichier pour permettre une nouvelle tentative
+        fileInput.value = ''; 
         return;
     }
+    //  Le code continue ici SEULEMENT si l'utilisateur a confirmé dans la modale 
 
     const reader = new FileReader();
     reader.onload = (e) => {
         try {
             const jsonText = e.target.result;
             const data = JSON.parse(jsonText);
-            importData(data);
+            // Assurez-vous que votre fonction importData(data) gère l'insertion DB
+            importData(data); 
         } catch (error) {
             console.error("Erreur de lecture ou de parsing JSON:", error);
-            alert('Erreur: Le fichier n\'est pas un JSON valide ou est corrompu.');
+            showNotification('Erreur: Le fichier n\'est pas un JSON valide ou est corrompu.');
         }
     };
     reader.readAsText(file);
@@ -1561,7 +1659,7 @@ function handleImport() {
  */
 function importData(importedData) {
     if (!importedData.stores || !importedData.stores.students || !importedData.stores.grades || !importedData.stores.classes) {
-        alert('Erreur: Le fichier JSON ne contient pas la structure de données attendue (classes, students et grades).');
+        showNotification('Erreur: Le fichier JSON ne contient pas la structure de données attendue (classes, students et grades).');
         return;
     }
 
@@ -1594,7 +1692,7 @@ function importData(importedData) {
     
     
     transaction.oncomplete = () => {
-        alert('Importation réussie! La base de données a été restaurée.');
+        showNotification('Importation réussie! La base de données a été restaurée.');
         // Rafraîchir l'interface
         loadDashboard();
         loadClassesAndStudentsDetails();
@@ -1602,7 +1700,7 @@ function importData(importedData) {
 
     transaction.onerror = (e) => {
         console.error("Erreur lors de la transaction d'importation:", e.target.error);
-        alert('Erreur lors de l\'importation des données.');
+        showNotification('Erreur lors de l\'importation des données.');
     };
 }
 

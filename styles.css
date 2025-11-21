@@ -611,3 +611,43 @@ select:focus {
     border: none;
   }
 }
+
+/* --- NOUVEAU: Notification System (Toast) --- */
+#notification-container {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column-reverse; /* Pour que le plus récent soit en haut */
+}
+
+.toast {
+    color: white;
+    padding: 15px 20px;
+    border-radius: 8px;
+    margin-top: 10px;
+    opacity: 0;
+    transition: opacity 0.5s, transform 0.5s;
+    transform: translateX(-100%); /* Commence hors écran à gauche */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    min-width: 250px;
+    font-weight: bold;
+}
+
+.toast.show {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.toast.success {
+    background-color: #4CAF50; /* Vert pour succès */
+}
+
+.toast.error {
+    background-color: #f44336; /* Rouge pour erreur */
+}
+
+.toast.info {
+    background-color: #2196F3; /* Bleu pour information */
+}
